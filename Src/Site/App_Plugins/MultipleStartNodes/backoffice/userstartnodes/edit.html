@@ -1,0 +1,37 @@
+﻿<form name="userStartNodesForm"
+    ng-controller="UserStartNodes.EditController as vm"
+    ng-submit="vm.save()"          
+    novalidate
+    val-form-manager>
+
+    <umb-load-indicator ng-if="!vm.loaded"></umb-load-indicator>    
+
+    <umb-editor-view ng-if="vm.loaded">
+
+        <umb-editor-header name="vm.title"
+                            name-locked="true"
+                            hide-icon="true"
+                            hide-description="true"
+                            hide-alias="true">
+        </umb-editor-header>
+
+        <umb-editor-container class="form-horizontal">
+            <umb-property property="property.model" ng-repeat="property in vm.properties">
+                <umb-editor model="property.model"></umb-editor>
+            </umb-property>
+        </umb-editor-container>
+
+        <umb-editor-footer>
+            <umb-editor-footer-content-right>
+                <umb-button type="submit"
+                            button-style="success"
+                            state="page.saveButtonState"
+                            shortcut="ctrl+s"
+                            label="Save"
+                            label-key="buttons_save">
+                </umb-button>
+            </umb-editor-footer-content-right>
+        </umb-editor-footer>
+
+    </umb-editor-view>
+</form>
