@@ -56,6 +56,7 @@ namespace MultipleStartNodes.Events
                 && (sender.TreeAlias == "content" || sender.TreeAlias == "media")
                 && sender.Security.CurrentUser.UserType.Alias != "admin")
             {
+                e.Menu.DefaultMenuAlias = "";
                 e.Menu.Items.RemoveRange(0, e.Menu.Items.Count - 1);
             }
             // Remove delete, move, and copy options from user's start nodes
