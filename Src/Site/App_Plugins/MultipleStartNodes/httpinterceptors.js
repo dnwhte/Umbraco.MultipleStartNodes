@@ -3,22 +3,22 @@
         return {
             'request': function (request) {
                 var requestUrl = request.url;
-
-                if (requestUrl.indexOf("views/content/move.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/content/move.html";
+                 
+                if (requestUrl.indexOf("views/components/editor/umb-breadcrumbs.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/umb-breadcrumbs.html";
                 }
-
-                if (requestUrl.indexOf("views/content/copy.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/content/copy.html";
+                else if (requestUrl.indexOf("views/common/overlays/mediapicker/mediapicker.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapicker.html";
+                }                
+                else if (requestUrl.indexOf("views/content/move.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentmove.html";
+                }              
+                else if (requestUrl.indexOf("views/content/copy.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentcopy.html";
                 }
-
-                if (requestUrl.indexOf("views/media/move.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/media/move.html";
-                }
-                
-                if (requestUrl.indexOf("views/common/overlays/mediapicker/mediapicker.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/common/overlays/mediapicker/mediapicker.html";
-                }
+                else if (requestUrl.indexOf("views/media/move.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediamove.html";
+                }    
 
                 return request || $q.when(request);
             }

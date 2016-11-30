@@ -27,8 +27,8 @@ namespace MultipleStartNodes.Utilities
                 case "/umbraco/backoffice/umbracoapi/media/getbyid":
                 case "/umbraco/backoffice/umbracoapi/media/postsave":
                     return RemoveInacessibleMediaNodesFromPath(request, cancellationToken); // prevents constant tree reloading               
-                //case "/umbraco/backoffice/umbracoapi/entity/getancestors":
-                //    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken);
+                case "/umbraco/backoffice/umbracoapi/entity/getancestors":
+                    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken);
                 case "/umbraco/backoffice/umbracoapi/entity/searchall":
                     return RemoveInaccessibleNodesFromSearchResults(request, cancellationToken);
                 case "/umbraco/backoffice/umbracoapi/entity/search":
@@ -132,10 +132,14 @@ namespace MultipleStartNodes.Utilities
                         HttpContent data = response.Content;
                         ObjectContent dataContent = ((ObjectContent)(data));
                         IEnumerable<EntityBasic> entities = dataContent.Value as IEnumerable<EntityBasic>;
-                        
-                        entities = entities.Where(e => PathContainsAStartNode(e.Path, startNodes));
+                        List<EntityBasic> entitiesList = entities.ToList();
 
-                        dataContent.Value = entities;
+                        foreach (EntityBasic e in entitiesList)
+                        {
+                            e.AdditionalData.Add("Hidden", !PathContainsAStartNode(e.Path, startNodes));
+                        }
+
+                        dataContent.Value = entitiesList;
                     }
                     catch (Exception ex)
                     {
