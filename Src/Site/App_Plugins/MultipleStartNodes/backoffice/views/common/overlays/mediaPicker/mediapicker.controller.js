@@ -2,10 +2,8 @@
     'use strict';
 
     function MultipleStartNodesMediaPickerController($scope, $timeout, userService, userStartNodesResource) {
-
-        // private variables
-        var userId = null,
-            startNodes = null;
+        
+        var startNodes = null;
 
         // setup view variables
         var vm = this;
@@ -14,20 +12,22 @@
         function init() {
             // get current user
             userService.getCurrentUser().then(function (user) {
-                if (user.userType === 'admin') {
+                // if admin let them edit anything
+                // if they're using a traditional umbraco start node, let me edit whatever they have access to
+                if (user.userType === 'admin' || user.startMediaId !== -1) {
                     vm.canEdit = true;
                     return;
-                }
-
-                userId = user.id;
+                }                
 
                 // get start nodes for current user
-                userStartNodesResource.getById(userId).then(function (response) {                    
+                userStartNodesResource.getById(user.id).then(function (response) {
+                    // no start nodes? Return with no editing access
                     if (response.data.media === "")
                         return;
 
                     startNodes = response.data.media.split(',');
 
+                    // if start nodes contain -1 let 'em edit whatever
                     if (_.contains(startNodes, "-1")) {
                         vm.canEdit = true;
                         return;
@@ -38,7 +38,7 @@
             });
         };
 
-        function watchForFolderChange() {
+        function watchForFolderChange() {            
             $scope.$watch(function (scope) { return scope.$$childHead.path },
                 function (currentPath) {
                     if (!currentPath || currentPath.length === 0) {
