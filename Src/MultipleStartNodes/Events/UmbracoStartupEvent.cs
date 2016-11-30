@@ -32,7 +32,8 @@ namespace MultipleStartNodes.Events
 
         private void TreeControllerBase_TreeNodesRendering(TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
-            if (e.Nodes.First().ParentId.ToString() == "-1"
+            if (e.Nodes.Count > 0
+                && e.Nodes.First().ParentId.ToString() == "-1"
                 && (sender.TreeAlias == "content" || sender.TreeAlias == "media")
                 && sender.Security.CurrentUser.UserType.Alias != "admin"                
                 && (e.QueryStrings.Get("isDialog") == "false" || e.QueryStrings.Get("usestartnodes") == "true")
@@ -77,7 +78,7 @@ namespace MultipleStartNodes.Events
 
         private void MediaServiceSaving(IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         {
-            if (UmbracoContext.Current.Security.CurrentUser.UserType.Alias != "admin")
+            if (UmbracoContext.Current.Security.CurrentUser.UserType.Alias != "admin" && UmbracoContext.Current.Security.CurrentUser.StartMediaId == -1)
             {
                 BackOfficeUtils.ValidateNodeAcess(UmbracoContext.Current.Security.CurrentUser.Id, sender, e);
             }
