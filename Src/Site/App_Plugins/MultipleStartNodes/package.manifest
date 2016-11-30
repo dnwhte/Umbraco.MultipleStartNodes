@@ -2,6 +2,8 @@
 	javascript: [
 	    '~/App_Plugins/MultipleStartNodes/backoffice/userstartnodes/edit.controller.js',		
         '~/App_Plugins/MultipleStartNodes/userstartnodes.resource.js',
-		'~/App_Plugins/MultipleStartNodes/httpinterceptors.js'        
+		'~/App_Plugins/MultipleStartNodes/httpinterceptors.js',
+		'~/App_Plugins/MultipleStartNodes/backoffice/views/common/overlays/mediaPicker/mediapicker.controller.js',
+		'~/App_Plugins/MultipleStartNodes/foolin.js'
 	]
 }

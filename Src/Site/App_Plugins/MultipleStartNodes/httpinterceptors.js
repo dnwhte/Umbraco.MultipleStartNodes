@@ -15,6 +15,10 @@
                 if (requestUrl.indexOf("views/media/move.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/media/move.html";
                 }
+                
+                if (requestUrl.indexOf("views/common/overlays/mediapicker/mediapicker.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/backoffice/views/common/overlays/mediapicker/mediapicker.html";
+                }
 
                 return request || $q.when(request);
             }

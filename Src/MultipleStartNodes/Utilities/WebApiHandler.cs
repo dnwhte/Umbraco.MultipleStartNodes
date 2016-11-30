@@ -27,8 +27,8 @@ namespace MultipleStartNodes.Utilities
                 case "/umbraco/backoffice/umbracoapi/media/getbyid":
                 case "/umbraco/backoffice/umbracoapi/media/postsave":
                     return RemoveInacessibleMediaNodesFromPath(request, cancellationToken); // prevents constant tree reloading               
-                case "/umbraco/backoffice/umbracoapi/entity/getancestors":
-                    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken);
+                //case "/umbraco/backoffice/umbracoapi/entity/getancestors":
+                //    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken);
                 case "/umbraco/backoffice/umbracoapi/entity/searchall":
                     return RemoveInaccessibleNodesFromSearchResults(request, cancellationToken);
                 case "/umbraco/backoffice/umbracoapi/entity/search":
