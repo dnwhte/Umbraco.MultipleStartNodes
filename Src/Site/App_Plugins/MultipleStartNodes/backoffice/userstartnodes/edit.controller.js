@@ -9,7 +9,7 @@
         vm.properties = [];
 
         function init() {
-            userStartNodesResource.getById($routeParams.id)
+            userStartNodesResource.getById($routeParams.id, true)
                 .then(function (response) {
                     vm.user = response.data;
                     setupProperties(vm.user);
