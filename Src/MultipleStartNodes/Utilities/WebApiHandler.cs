@@ -28,15 +28,15 @@ namespace MultipleStartNodes.Utilities
                 case "/umbraco/backoffice/umbracoapi/media/postsave":
                     return RemoveInacessibleMediaNodesFromPath(request, cancellationToken); // prevents constant tree reloading               
                 case "/umbraco/backoffice/umbracoapi/entity/getancestors":
-                    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken);
+                    return RemoveInaccessibleAncestorsFromBreadcrumbs(request, cancellationToken); // used at the bottom of the edit view and in the media picker
                 case "/umbraco/backoffice/umbracoapi/entity/searchall":
-                    return RemoveInaccessibleNodesFromSearchResults(request, cancellationToken);
+                    return RemoveInaccessibleNodesFromSearchResults(request, cancellationToken); // primary umbraco back-office search
                 case "/umbraco/backoffice/umbracoapi/entity/search":
-                    return RemoveInaccessibleNodesFromContentSearchResults(request, cancellationToken);
+                    return RemoveInaccessibleNodesFromContentSearchResults(request, cancellationToken); // for the copy/move menus only ... I think
                 case "/umbraco/backoffice/umbracoapi/media/getchildren":
-                    return HandleListViewStartNodes(request, cancellationToken);
+                    return HandleListViewStartNodes(request, cancellationToken); // for the media section and picker list view
                 case "/umbraco/backoffice/umbracoapi/media/getchildfolders":
-                    return HandleRootChildFolders(request, cancellationToken);
+                    return HandleRootChildFolders(request, cancellationToken); // more the media section grid view only...I think
                 case "/umbraco/backoffice/umbracoapi/content/postmove":
                 case "/umbraco/backoffice/umbracoapi/content/postcopy":
                 case "/umbraco/backoffice/umbracoapi/media/postmove":
