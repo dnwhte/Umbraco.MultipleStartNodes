@@ -164,25 +164,23 @@ namespace MultipleStartNodes.Utilities
             }
         }
 
-        internal static void RestrictContentStartNodeOptions(int userId, TreeControllerBase sender, MenuRenderingEventArgs e)
+        internal static void RestrictContentStartNodeOptions(int userId, TreeControllerBase sender, MenuRenderingEventArgs e, string section)
         {
-            int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Content;
+            int[] startNodes = null;
+
+            if (section == "content")
+            {
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Content;
+            }
+            else if (section == "media")
+            {
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
+            }            
 
             if (startNodes == null || !startNodes.Contains(int.Parse(e.NodeId)))
                 return;
             
-            string[] preventedActionAliases = { "delete", "move", "copy" };
-            e.Menu.Items.RemoveAll(i => preventedActionAliases.Contains(i.Alias));
-        }
-
-        internal static void RestrictMediaStartNodeOptions(int userId, TreeControllerBase sender, MenuRenderingEventArgs e)
-        {
-            int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
-
-            if (startNodes == null || !startNodes.Contains(int.Parse(e.NodeId)))
-                return;
-
-            string[] preventedActionAliases = { "delete", "move" };
+            string[] preventedActionAliases = Settings.RemoveActionsForStartNodes;
             e.Menu.Items.RemoveAll(i => preventedActionAliases.Contains(i.Alias));
         }
     }

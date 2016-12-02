@@ -18,6 +18,14 @@ namespace MultipleStartNodes
                 return multipleStartNodesConfig.LimitPickersToStartNodes.Value;
             }
         }
+
+        public static string[] RemoveActionsForStartNodes
+        {
+            get
+            {
+                return multipleStartNodesConfig.RemoveActionsForStartNodes.Value.Split(',');
+            }
+        }
     }
 
 
@@ -40,6 +48,19 @@ namespace MultipleStartNodes
                 this["LimitPickersToStartNodes"] = value; 
             }
         }
+
+        [ConfigurationProperty("RemoveActionsForStartNodes")]
+        public RemoveActionsForStartNodes RemoveActionsForStartNodes
+        {
+            get
+            {
+                return (RemoveActionsForStartNodes)this["RemoveActionsForStartNodes"];
+            }
+            set
+            {
+                this["RemoveActionsForStartNodes"] = value;
+            }
+        }
     }
 
 
@@ -51,6 +72,18 @@ namespace MultipleStartNodes
             get
             {
                 return bool.Parse(this["value"].ToString());
+            }
+        }
+    }
+
+    public class RemoveActionsForStartNodes : ConfigurationElement
+    {
+        [ConfigurationProperty("value", DefaultValue = "", IsRequired = false)]
+        public string Value
+        {
+            get
+            {
+                return this["value"].ToString();
             }
         }
     }

@@ -23,10 +23,10 @@ namespace MultipleStartNodes.Events
             if (!Resources.DatabaseSchemaHelper.TableExist("userStartNodes"))
             {                
                 Resources.DatabaseSchemaHelper.CreateTable<UserStartNodes>(false);
-            }            
+            }
 
             TreeControllerBase.TreeNodesRendering += TreeControllerBase_TreeNodesRendering;
-            TreeControllerBase.MenuRendering += TreeControllerBase_MenuRendering;            
+            TreeControllerBase.MenuRendering += TreeControllerBase_MenuRendering;
             MediaService.Saving += MediaServiceSaving;
         }                   
 
@@ -35,8 +35,9 @@ namespace MultipleStartNodes.Events
             if (e.Nodes.Count > 0
                 && e.Nodes.First().ParentId.ToString() == "-1"
                 && (sender.TreeAlias == "content" || sender.TreeAlias == "media")
-                && sender.Security.CurrentUser.UserType.Alias != "admin"                
-                && (e.QueryStrings.Get("isDialog") == "false" || e.QueryStrings.Get("usestartnodes") == "true")
+                && sender.Security.CurrentUser.UserType.Alias != "admin"
+                && ((e.QueryStrings.Get("isDialog") == "false" || e.QueryStrings.Get("usestartnodes") == "true")
+                    || (e.QueryStrings.Get("isDialog") == "true" && Settings.LimitPickersToStartNodes))
                 )
             {
                 if (sender.TreeAlias == "content" && sender.Security.CurrentUser.StartContentId == -1)
@@ -65,14 +66,7 @@ namespace MultipleStartNodes.Events
                 && (sender.TreeAlias == "content" || sender.TreeAlias == "media")
                 && sender.Security.CurrentUser.UserType.Alias != "admin")
             {
-                if (sender.TreeAlias == "content")
-                {
-                    BackOfficeUtils.RestrictContentStartNodeOptions(sender.Security.CurrentUser.Id, sender, e);
-                }
-                else if (sender.TreeAlias == "media")
-                {
-                    BackOfficeUtils.RestrictMediaStartNodeOptions(sender.Security.CurrentUser.Id, sender, e);
-                } 
+                BackOfficeUtils.RestrictContentStartNodeOptions(sender.Security.CurrentUser.Id, sender, e, sender.TreeAlias);
             }
         } 
 
