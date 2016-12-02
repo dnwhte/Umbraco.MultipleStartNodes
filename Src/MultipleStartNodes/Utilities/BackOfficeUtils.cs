@@ -125,6 +125,7 @@ namespace MultipleStartNodes.Utilities
         }
 
         public static void ValidateNodeAcess(int userId, IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
+        public static void ValidateMediaUploadAccess(int userId, IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         {
             IMedia firstItem = e.SavedEntities.FirstOrDefault();
             if (firstItem.HasIdentity)

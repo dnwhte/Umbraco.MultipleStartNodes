@@ -74,7 +74,7 @@ namespace MultipleStartNodes.Events
         {
             if (UmbracoContext.Current.Security.CurrentUser.UserType.Alias != "admin" && UmbracoContext.Current.Security.CurrentUser.StartMediaId == -1)
             {
-                BackOfficeUtils.ValidateNodeAcess(UmbracoContext.Current.Security.CurrentUser.Id, sender, e);
+                BackOfficeUtils.ValidateMediaUploadAccess(UmbracoContext.Current.Security.CurrentUser.Id, sender, e);
             }
         }        
     }
