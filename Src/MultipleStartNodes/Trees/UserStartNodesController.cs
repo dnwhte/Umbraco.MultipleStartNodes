@@ -12,7 +12,7 @@ using MultipleStartNodes.Utilities;
 
 namespace MultipleStartNodes.Trees
 {
-    [Tree("users", "userStartNodes", "User Start Nodes", initialize: false, sortOrder: 3)]
+    [Tree("users", "userStartNodes", "User Start Nodes", sortOrder: 3)]
     [PluginController("MultipleStartNodes")]
     public class UserStartNodesController : TreeController
     {
