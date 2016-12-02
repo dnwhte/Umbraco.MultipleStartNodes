@@ -17,19 +17,11 @@ namespace MultipleStartNodes.Utilities
         public static void RenderContentStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
             StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
-
-            // If start node access has not been set, remove all to prevent access.            
+               
             if (startNodes.Content == null)
-            {
-                e.Nodes.Clear();
+            {                
                 return;
-            }
-
-            // If has root access, don't limit nodes and just return
-            if (startNodes.Content.Contains(-1))
-            {
-                return;
-            }            
+            }        
 
             if (startNodes.Content.Any())
             {
@@ -74,17 +66,9 @@ namespace MultipleStartNodes.Utilities
         public static void RenderMediaStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
             StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
-
-            // If start node access has not been set, remove all to prevent access.
+            
             if (startNodes.Media == null)
-            {
-                e.Nodes.Clear();
-                return;
-            }
-
-            // If has root access, don't limit nodes and just return
-            if (startNodes.Media.Contains(-1))
-            {
+            {                
                 return;
             }
 
@@ -124,7 +108,6 @@ namespace MultipleStartNodes.Utilities
             }
         }
 
-        public static void ValidateNodeAcess(int userId, IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         public static void ValidateMediaUploadAccess(int userId, IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         {
             IMedia firstItem = e.SavedEntities.FirstOrDefault();
@@ -133,10 +116,10 @@ namespace MultipleStartNodes.Utilities
 
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
 
-            if (startNodes != null && startNodes.Contains(-1))
+            if (startNodes == null)
                 return;
 
-            if (startNodes == null || !PathContainsAStartNode(firstItem.Path, startNodes))
+            if (!PathContainsAStartNode(firstItem.Path, startNodes))
             {
                 e.CanCancel = true;
                 e.CancelOperation(new Umbraco.Core.Events.EventMessage("Permission Denied", "You do not have permission to upload files to this folder."));

@@ -51,7 +51,7 @@ namespace MultipleStartNodes.Utilities
             IUser user = UmbracoContext.Current.Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
 
-            if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+            if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
             return base.SendAsync(request, cancellationToken)
@@ -79,7 +79,7 @@ namespace MultipleStartNodes.Utilities
             IUser user = UmbracoContext.Current.Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
 
-            if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+            if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
             return base.SendAsync(request, cancellationToken)
@@ -120,7 +120,7 @@ namespace MultipleStartNodes.Utilities
                 return base.SendAsync(request, cancellationToken);
             }            
 
-            if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+            if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
             return base.SendAsync(request, cancellationToken)
@@ -134,10 +134,17 @@ namespace MultipleStartNodes.Utilities
                         IEnumerable<EntityBasic> entities = dataContent.Value as IEnumerable<EntityBasic>;
                         List<EntityBasic> entitiesList = entities.ToList();
 
-                        foreach (EntityBasic e in entitiesList)
+                        if (Settings.LimitPickersToStartNodes)
                         {
-                            e.AdditionalData.Add("Hidden", !PathContainsAStartNode(e.Path, startNodes));
+                            entitiesList = entitiesList.Where(e => PathContainsAStartNode(e.Path, startNodes)).ToList();
                         }
+                        else
+                        {
+                            foreach (EntityBasic e in entitiesList)
+                            {
+                                e.AdditionalData.Add("Hidden", !PathContainsAStartNode(e.Path, startNodes));
+                            }
+                        }                        
 
                         dataContent.Value = entitiesList;
                     }
@@ -171,12 +178,12 @@ namespace MultipleStartNodes.Utilities
                         EntityTypeSearchResult contentResults = entities.FirstOrDefault(e => e.EntityType == "Document");
                         EntityTypeSearchResult mediaResults = entities.FirstOrDefault(e => e.EntityType == "Media");
 
-                        if (startNodes.Content != null && !startNodes.Content.Contains(-1) && contentResults.Results.Any())
+                        if (startNodes.Content != null && contentResults.Results.Any())
                         {
                             contentResults.Results = contentResults.Results.Where(e => PathContainsAStartNode(e.Path, startNodes.Content));
                         }
 
-                        if (startNodes.Media != null && !startNodes.Media.Contains(-1) && mediaResults.Results.Any())
+                        if (startNodes.Media != null && mediaResults.Results.Any())
                         {
                             mediaResults.Results = mediaResults.Results.Where(e => PathContainsAStartNode(e.Path, startNodes.Media));
                         }
@@ -200,10 +207,7 @@ namespace MultipleStartNodes.Utilities
             IUser user = UmbracoContext.Current.Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
 
-            if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
-                return base.SendAsync(request, cancellationToken);
-
-            if (user.UserType.Alias == "admin")
+            if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
             return base.SendAsync(request, cancellationToken)
@@ -230,14 +234,14 @@ namespace MultipleStartNodes.Utilities
         }
 
         private Task<HttpResponseMessage> HandleListViewStartNodes(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            // checking these querystrings should prevent this from running in the media picker...I think
-            if (request.RequestUri.Query.Contains("id=-1") && request.RequestUri.Query.Contains("pageNumber=1"))
+        {            
+            // do at root in the media section or in the picker when it should be limited
+            if (request.RequestUri.Query.Contains("id=-1") && (request.RequestUri.Query.Contains("pageNumber=1") || Settings.LimitPickersToStartNodes))
             {
                 IUser user = UmbracoContext.Current.Security.CurrentUser;
                 int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
 
-                if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+                if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
 
                 return base.SendAsync(request, cancellationToken)
@@ -270,14 +274,13 @@ namespace MultipleStartNodes.Utilities
         }
 
         private Task<HttpResponseMessage> HandleRootChildFolders(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            // checking these querystrings should prevent this from running in the media picker...I think
+        {            
             if (request.RequestUri.Query.Contains("id=-1"))
             {
                 IUser user = UmbracoContext.Current.Security.CurrentUser;
                 int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
 
-                if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+                if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
 
                 return base.SendAsync(request, cancellationToken)
@@ -322,7 +325,7 @@ namespace MultipleStartNodes.Utilities
                 return base.SendAsync(request, cancellationToken);
             }
 
-            if (user.UserType.Alias == "admin" || startNodes == null || startNodes.Contains(-1))
+            if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
             return base.SendAsync(request, cancellationToken)
