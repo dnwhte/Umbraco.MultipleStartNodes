@@ -21,17 +21,13 @@
 
                 // get start nodes for current user
                 userStartNodesResource.getById(user.id).then(function (response) {
-                    // no start nodes? Return with no editing access
-                    if (response.data.media === "")
-                        return;
-
-                    startNodes = response.data.media.split(',');
-
-                    // if start nodes contain -1 let 'em edit whatever
-                    if (_.contains(startNodes, "-1")) {
+                    // no start nodes? Return with umbraco default permissions
+                    if (response.data.media === "") {
                         vm.canEdit = true;
                         return;
                     }
+
+                    startNodes = response.data.media.split(',');                    
 
                     watchForFolderChange();
                 });
