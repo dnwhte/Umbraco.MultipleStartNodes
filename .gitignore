@@ -281,3 +281,6 @@ Src/Site/*
 !Src/Site/App_Plugins
 Src/Site/App_Plugins/*
 !Src/Site/App_Plugins/MultipleStartNodes
+!Src/Site/Config
+Src/Site/Config/*
+!Src/Site/Config/MultipleStartNodes.config
