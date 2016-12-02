@@ -9,7 +9,16 @@
                 }
                 else if (requestUrl.indexOf("views/common/overlays/mediapicker/mediapicker.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapicker.html";
-                }                
+                }
+                else if (requestUrl.indexOf("views/propertyeditors/listview/listview.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listview.html";
+                }
+                else if (requestUrl.indexOf("views/propertyeditors/listview/layouts/list/list.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/list.html";
+                }
+                else if (requestUrl.indexOf("views/propertyeditors/listview/layouts/grid/grid.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/grid.html";
+                }
                 else if (requestUrl.indexOf("views/content/move.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentmove.html";
                 }              

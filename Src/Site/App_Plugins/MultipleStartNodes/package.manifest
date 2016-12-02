@@ -4,6 +4,8 @@
         '~/App_Plugins/MultipleStartNodes/userstartnodes.resource.js',
 		'~/App_Plugins/MultipleStartNodes/settings.resource.js',
 		'~/App_Plugins/MultipleStartNodes/httpinterceptors.js',
-		'~/App_Plugins/MultipleStartNodes/umbracocontrollers/mediapicker.controller.js'		
+		'~/App_Plugins/MultipleStartNodes/umbracocontrollers/mediapicker.controller.js',
+		'~/App_Plugins/MultipleStartNodes/umbracocontrollers/listview.controller.js',
+		'~/App_Plugins/MultipleStartNodes/umbracocontrollers/dropzone.controller.js'
 	]
 }
