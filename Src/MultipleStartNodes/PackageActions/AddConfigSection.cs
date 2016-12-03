@@ -38,9 +38,10 @@ namespace MultipleStartNodes.PackageActions
                     using (var reader = new StreamReader(xmlPath))
                     {
                         xml = reader.ReadToEnd();
-                    }
-
+                    }                    
+                    
                     webConfig.Sections["MultipleStartNodes"].SectionInformation.ConfigSource = configPath;
+                    webConfig.Sections["MultipleStartNodes"].SectionInformation.RequirePermission = false;
                     webConfig.Save(ConfigurationSaveMode.Minimal);
 
                     // TODO - this is a quick fix for M-149

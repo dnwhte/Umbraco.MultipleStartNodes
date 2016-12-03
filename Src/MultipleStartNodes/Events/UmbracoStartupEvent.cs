@@ -20,11 +20,6 @@ namespace MultipleStartNodes.Events
 
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            //if (!Resources.DatabaseSchemaHelper.TableExist("userStartNodes"))
-            //{                
-            //    Resources.DatabaseSchemaHelper.CreateTable<UserStartNodes>(false);
-            //}
-
             TreeControllerBase.TreeNodesRendering += TreeControllerBase_TreeNodesRendering;
             TreeControllerBase.MenuRendering += TreeControllerBase_MenuRendering;
             MediaService.Saving += MediaServiceSaving;
