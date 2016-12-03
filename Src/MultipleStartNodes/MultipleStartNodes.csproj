@@ -262,6 +262,8 @@
     <Compile Include="Models\StartNodeCollection.cs" />
     <Compile Include="Models\StartNodeRepository.cs" />
     <Compile Include="Models\UserStartNodes.cs" />
+    <Compile Include="PackageActions\AddConfigSection.cs" />
+    <Compile Include="PackageActions\CreateDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Trees\UserStartNodesController.cs" />
