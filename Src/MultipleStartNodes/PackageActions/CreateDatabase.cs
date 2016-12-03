@@ -23,7 +23,10 @@ namespace MultipleStartNodes.PackageActions
         {
             try
             {
-                Resources.DatabaseSchemaHelper.CreateTable<UserStartNodes>(false);
+                if (!Resources.DatabaseSchemaHelper.TableExist("userStartNodes"))
+                {
+                    Resources.DatabaseSchemaHelper.CreateTable<UserStartNodes>(false);
+                }
 
                 return true;
             }
@@ -33,8 +36,7 @@ namespace MultipleStartNodes.PackageActions
                 LogHelper.Error(typeof(CreateDatabase), message, ex);
             }
 
-            return false;
-            
+            return false;            
         }
 
         public XmlNode SampleXml()
