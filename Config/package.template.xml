@@ -6,7 +6,11 @@
             <version><%= version %></version>
             <license url="<%= licenseUrl %>"><%= license %></license>
             <url><%= url %></url>
-            <requirements/>
+            <requirements>
+                <major>7</major>
+                <minor>5</minor>
+                <patch>4</patch>
+        </requirements>
         </package>
         <author>
             <name><%= author %></name>
