@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         basePath: path.join('<%= dest %>', 'App_Plugins', '<%= pkgMeta.directory %>'),
 
         clean: {
-            build: '<%= grunt.config("basePath").substring(0, 4) == "dist" ? "dist/**/*" : "null" %>',
+            build: ['<%= grunt.config("basePath").substring(0, 4) == "dist" ? "dist/**/*" : "null" %>', 'pkg'],
             tmp: ['tmp']
         },
 
