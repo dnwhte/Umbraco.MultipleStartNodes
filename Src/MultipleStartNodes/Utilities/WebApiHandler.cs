@@ -3,6 +3,7 @@ using MultipleStartNodes.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -63,6 +64,11 @@ namespace MultipleStartNodes.Utilities
                         HttpContent data = response.Content;
                         ContentItemDisplay content = ((ObjectContent)(data)).Value as ContentItemDisplay;
 
+                        if (!PathContainsAStartNode(content.Path, startNodes))
+                        {                            
+                            response.StatusCode = HttpStatusCode.Forbidden;
+                        }
+
                         content.Path = RemoveStartNodeAncestors(content.Path, startNodes);
                     }
                     catch (Exception ex)
@@ -90,6 +96,11 @@ namespace MultipleStartNodes.Utilities
                     {
                         HttpContent data = response.Content;
                         MediaItemDisplay media = ((ObjectContent)(data)).Value as MediaItemDisplay;
+
+                        if (!PathContainsAStartNode(media.Path, startNodes))
+                        {                            
+                            response.StatusCode = HttpStatusCode.Forbidden;
+                        }
 
                         media.Path = RemoveStartNodeAncestors(media.Path, startNodes);
                     }
