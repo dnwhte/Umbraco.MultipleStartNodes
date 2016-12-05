@@ -10,7 +10,7 @@
                 else if (requestUrl.indexOf("views/common/overlays/mediapicker/mediapicker.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapicker.html";
                 }
-                else if (requestUrl.indexOf("views/propertyeditors/listview/listview.html") === 0) {
+                else if (requestUrl.indexOf("views/propertyeditors/listview/listview.html") === 0 && requestUrl.indexOf("?nointercept") === -1) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listview.html";
                 }
                 else if (requestUrl.indexOf("views/propertyeditors/listview/layouts/list/list.html") === 0) {
