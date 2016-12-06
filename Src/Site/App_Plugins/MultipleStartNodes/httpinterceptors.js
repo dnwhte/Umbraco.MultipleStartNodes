@@ -19,6 +19,9 @@
                 else if (requestUrl.indexOf("views/propertyeditors/listview/layouts/grid/grid.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/grid.html";
                 }
+                else if (requestUrl.indexOf("views/common/dialogs/mediaPicker.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapickerdialog.html";
+                }
                 else if (requestUrl.indexOf("views/content/move.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentmove.html";
                 }              
