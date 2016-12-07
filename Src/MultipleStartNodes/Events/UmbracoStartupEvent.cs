@@ -28,7 +28,7 @@ namespace MultipleStartNodes.Events
         private void TreeControllerBase_TreeNodesRendering(TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
             if (e.Nodes.Count > 0
-                && e.Nodes.First().ParentId.ToString() == "-1"
+                && (e.Nodes.First().ParentId != null && e.Nodes.First().ParentId.ToString() == "-1")
                 && (sender.TreeAlias == "content" || sender.TreeAlias == "media")
                 && sender.Security.CurrentUser.UserType.Alias != "admin"
                 && ((e.QueryStrings.Get("isDialog") == "false" || e.QueryStrings.Get("usestartnodes") == "true")
