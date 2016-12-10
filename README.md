@@ -1,5 +1,5 @@
 # Umbraco.MultipleStartNodes
-Adds the ability to have multiple content and media start nodes for Umbraco users. 
+This package gives you the ability to set multiple content/media start nodes for users.
 
 ##How it works
 
@@ -15,43 +15,56 @@ The *TreeControllerBase.MenuRendering* event is used to remove admin functions (
 
 *WebApiHandler* captures a number UmbracoApi requests and modifies the result before returning it to the client.
 
+####List of captured api requests and the actions taken####
+
     /umbraco/backoffice/umbracoapi/content/getbyid
     /umbraco/backoffice/umbracoapi/content/postsave
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis, praesentium.
-
     /umbraco/backoffice/umbracoapi/media/getbyid
     /umbraco/backoffice/umbracoapi/media/postsave
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut, placeat.
+Throw an http forbidden error if the user shouldn't have access to the node. Otherwise remove inaccessible ancestors from the node's path - this prevents the tree from reloading every time a node is requested.
 
     /umbraco/backoffice/umbracoapi/entity/getancestors
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero, pariatur.
+Add a *hidden=true* value to AdditionalData on inaccessible ancestor nodes. Nodes with hidden=true are not displayed in the edit view's breadcrumbs.
 
     /umbraco/backoffice/umbracoapi/entity/searchall
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laudantium, eaque.
-
     /umbraco/backoffice/umbracoapi/entity/search
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolore, cupiditate.
+Remove inaccessible content/media nodes from results.
 
     /umbraco/backoffice/umbracoapi/media/getchildren
-
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident, nam.
-
     /umbraco/backoffice/umbracoapi/media/getchildfolders
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempora, incidunt.
+Replace default start nodes with user's custom start nodes. Used by media pickers and the media section's ListView.
 
     /umbraco/backoffice/umbracoapi/content/postmove
     /umbraco/backoffice/umbracoapi/content/postcopy
     /umbraco/backoffice/umbracoapi/media/postmove
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ullam, necessitatibus?
+Remove inaccessible ancestors from the node's path - this prevents the tree from reloading every time a node is requested.
 
 ---
 
-**On the front-end** 
+**On the front-end** a number of angular http interceptors are used to swap out Umbraco html views for custom versions.
 
+    views/components/editor/umb-breadcrumbs.html
+
+Add an additional conditional that prevents inaccessible ancestors from displaying.
+
+    views/common/overlays/mediapicker/mediapicker.html
+    views/common/dialogs/mediaPicker.html
+
+Disable the upload button, dropzone, and add folder button if the user is in a folder they do not have access to. Use angular to watch for a folder change and enable the features if the user has access. This should only apply when pickers are not being limited to the user's start nodes.
+
+    views/propertyeditors/listview/listview.html
+    views/propertyeditors/listview/layouts/list/list.html
+    views/propertyeditors/listview/layouts/grid/grid.html
+
+Remove the move and delete functions from the user's start nodes. Disable the upload dropzone if the user does not have access to the folder.
+
+    views/content/move.html
+    views/content/copy.html
+    views/media/move.html
+
+Add a value to the umb-tree customtreeparams attribute that lets the *TreeControllerBase.TreeNodesRendering* event know to render the user's custom start nodes instead of the default.
