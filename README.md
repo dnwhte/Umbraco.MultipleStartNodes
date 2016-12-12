@@ -46,7 +46,7 @@ Remove inaccessible ancestors from the node's path - this prevents the tree from
 
 ---
 
-**On the front-end** a number of angular http interceptors are used to swap out Umbraco html views for custom versions.
+**On the front-end** a number of angular http interceptors are used to swap out Umbraco html views for custom versions with custom controllers.
 
     views/components/editor/umb-breadcrumbs.html
 
