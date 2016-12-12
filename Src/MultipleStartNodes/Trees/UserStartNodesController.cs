@@ -16,6 +16,12 @@ namespace MultipleStartNodes.Trees
     [PluginController("MultipleStartNodes")]
     public class UserStartNodesController : TreeController
     {
+        protected override TreeNode CreateRootNode(FormDataCollection queryStrings)
+        {
+            var route = "/users/userStartNodes/index/0";
+            return CreateTreeNode("-1", null, queryStrings, "User Start Nodes", "icon-folder", true, route);            
+        }
+
         protected override MenuItemCollection GetMenuForNode(string id, FormDataCollection queryStrings)
         {
             MenuItemCollection menu = new MenuItemCollection();
