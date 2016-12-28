@@ -16,7 +16,7 @@ namespace MultipleStartNodes.Utilities
     {      
         public static void RenderContentStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
-            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
+            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext);
                
             if (startNodes.Content == null)
             {                
@@ -65,7 +65,7 @@ namespace MultipleStartNodes.Utilities
 
         public static void RenderMediaStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
-            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
+            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext);
             
             if (startNodes.Media == null)
             {                
@@ -154,11 +154,11 @@ namespace MultipleStartNodes.Utilities
 
             if (section == "content")
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Content;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext).Content;
             }
             else if (section == "media")
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext).Media;
             }            
 
             if (startNodes == null || !startNodes.Contains(int.Parse(e.NodeId)))

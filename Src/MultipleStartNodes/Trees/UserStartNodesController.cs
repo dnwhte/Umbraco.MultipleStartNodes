@@ -8,7 +8,6 @@ using Umbraco.Web.Models.Trees;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Trees;
 using Umbraco.Core.Services;
-using MultipleStartNodes.Utilities;
 
 namespace MultipleStartNodes.Trees
 {

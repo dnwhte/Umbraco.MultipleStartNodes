@@ -13,7 +13,6 @@ using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
-using Umbraco.Web;
 using Umbraco.Web.Models.ContentEditing;
 
 namespace MultipleStartNodes.Utilities
@@ -252,7 +251,8 @@ namespace MultipleStartNodes.Utilities
             if (request.RequestUri.Query.Contains("id=-1") && (request.RequestUri.Query.Contains("pageNumber=1") || Settings.LimitPickersToStartNodes))
             {
                 IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
-                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
 
                 if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
@@ -267,7 +267,7 @@ namespace MultipleStartNodes.Utilities
                             ObjectContent dataContent = ((ObjectContent)(data));
 
                             int itemCount = startNodes.Length;
-                            IMedia[] startIMedia = ContextHelpers.EnsureApplicationContext().Services.MediaService.GetByIds(startNodes).ToArray();
+                            IMedia[] startIMedia = appContext.Services.MediaService.GetByIds(startNodes).ToArray();
 
                             var pagedResult = new PagedResult<ContentItemBasic<ContentPropertyBasic, IMedia>>(itemCount, 1, itemCount);
                             pagedResult.Items = startIMedia
@@ -291,7 +291,8 @@ namespace MultipleStartNodes.Utilities
             if (request.RequestUri.Query.Contains("id=-1"))
             {
                 IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
-                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
 
                 if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
@@ -303,8 +304,7 @@ namespace MultipleStartNodes.Utilities
                         try
                         {
                             HttpContent data = response.Content;
-                            ObjectContent dataContent = ((ObjectContent)(data));
-                            ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                            ObjectContent dataContent = ((ObjectContent)(data));                            
 
                             IEnumerable<int> folderTypes = appContext.Services.ContentTypeService.GetAllMediaTypes().ToArray().Where(x => x.Alias.EndsWith("Folder")).Select(x => x.Id);
                             IMedia[] children = appContext.Services.MediaService.GetByIds(startNodes).ToArray();
