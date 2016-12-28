@@ -28,7 +28,7 @@ namespace MultipleStartNodes.Utilities
                 // Remove default start nodes
                 e.Nodes.Clear();
 
-                IEnumerable<IUmbracoEntity> startNodesEntities = Resources.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Document, startNodes.Content);
+                IEnumerable<IUmbracoEntity> startNodesEntities = sender.Services.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Document, startNodes.Content);
 
                 // Feels like a lot of duct tape. A lot taken from:
                 // https://github.com/umbraco/Umbraco-CMS/blob/5397f2c53acbdeb0805e1fe39fda938f571d295a/src/Umbraco.Web/Trees/ContentTreeController.cs#L75
@@ -76,7 +76,7 @@ namespace MultipleStartNodes.Utilities
             {
                 // Remove default start nodes
                 e.Nodes.Clear();
-                IEnumerable<IUmbracoEntity> startNodesEntities = Resources.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Media, startNodes.Media);
+                IEnumerable<IUmbracoEntity> startNodesEntities = sender.Services.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Media, startNodes.Media);
 
                 foreach (IUmbracoEntity startNodeEntity in startNodesEntities)
                 {
