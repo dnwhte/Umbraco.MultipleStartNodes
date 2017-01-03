@@ -258,6 +258,7 @@
     <Compile Include="Controllers\SettingsApiController.cs" />
     <Compile Include="Controllers\UserStartNodesApiController.cs" />
     <Compile Include="Events\UmbracoStartupEvent.cs" />
+    <Compile Include="Helpers\ContextHelpers.cs" />
     <Compile Include="Models\SectionType.cs" />
     <Compile Include="Models\StartNodeCollection.cs" />
     <Compile Include="Models\StartNodeRepository.cs" />
@@ -275,6 +276,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

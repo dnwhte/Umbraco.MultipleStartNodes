@@ -16,7 +16,7 @@ namespace MultipleStartNodes.Utilities
     {      
         public static void RenderContentStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
-            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
+            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext);
                
             if (startNodes.Content == null)
             {                
@@ -28,7 +28,7 @@ namespace MultipleStartNodes.Utilities
                 // Remove default start nodes
                 e.Nodes.Clear();
 
-                IEnumerable<IUmbracoEntity> startNodesEntities = Resources.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Document, startNodes.Content);
+                IEnumerable<IUmbracoEntity> startNodesEntities = sender.Services.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Document, startNodes.Content);
 
                 // Feels like a lot of duct tape. A lot taken from:
                 // https://github.com/umbraco/Umbraco-CMS/blob/5397f2c53acbdeb0805e1fe39fda938f571d295a/src/Umbraco.Web/Trees/ContentTreeController.cs#L75
@@ -65,7 +65,7 @@ namespace MultipleStartNodes.Utilities
 
         public static void RenderMediaStartNodes(int userId, TreeControllerBase sender, TreeNodesRenderingEventArgs e)
         {
-            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
+            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext);
             
             if (startNodes.Media == null)
             {                
@@ -76,7 +76,7 @@ namespace MultipleStartNodes.Utilities
             {
                 // Remove default start nodes
                 e.Nodes.Clear();
-                IEnumerable<IUmbracoEntity> startNodesEntities = Resources.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Media, startNodes.Media);
+                IEnumerable<IUmbracoEntity> startNodesEntities = sender.Services.EntityService.GetAll(Umbraco.Core.Models.UmbracoObjectTypes.Media, startNodes.Media);
 
                 foreach (IUmbracoEntity startNodeEntity in startNodesEntities)
                 {
@@ -154,11 +154,11 @@ namespace MultipleStartNodes.Utilities
 
             if (section == "content")
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Content;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext).Content;
             }
             else if (section == "media")
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, sender.ApplicationContext, sender.DatabaseContext).Media;
             }            
 
             if (startNodes == null || !startNodes.Contains(int.Parse(e.NodeId)))
