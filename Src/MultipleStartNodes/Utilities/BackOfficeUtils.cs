@@ -116,7 +116,7 @@ namespace MultipleStartNodes.Utilities
 
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId).Media;
 
-            if (startNodes == null)
+            if (startNodes == null || firstItem.Path == null)
                 return;
 
             if (!PathContainsAStartNode(firstItem.Path, startNodes))
