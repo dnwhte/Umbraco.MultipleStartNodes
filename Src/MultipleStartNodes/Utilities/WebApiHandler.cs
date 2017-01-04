@@ -4,6 +4,7 @@ using MultipleStartNodes.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -17,6 +18,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Web.Models.ContentEditing;
+using Umbraco.Web.WebApi;
 
 namespace MultipleStartNodes.Utilities
 {
@@ -355,7 +357,11 @@ namespace MultipleStartNodes.Utilities
 
             if (IndexOfInt(startNodes, postModel.ParentId) == -1)
             {
-                // throw a friendly error message
+                // take error notification from https://github.com/umbraco/Umbraco-CMS/blob/a2a4ad39476f4a18c8fe2c04d42f6fa635551b63/src/Umbraco.Web/Editors/MediaController.cs#L656
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                SimpleNotificationModel notificationModel = new SimpleNotificationModel();
+                notificationModel.AddErrorNotification(appContext.Services.TextService.Localize("moveOrCopy/notValid", CultureInfo.CurrentCulture), "");
+                throw new HttpResponseException(request.CreateValidationErrorResponse(notificationModel));
             }
             else
             {
