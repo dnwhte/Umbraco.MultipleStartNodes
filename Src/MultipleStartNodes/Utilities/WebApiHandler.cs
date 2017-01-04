@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
 using MultipleStartNodes.Helpers;
 using MultipleStartNodes.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
@@ -67,7 +70,7 @@ namespace MultipleStartNodes.Utilities
 
                         if (!PathContainsAStartNode(content.Path, startNodes))
                         {                            
-                            response.StatusCode = HttpStatusCode.Forbidden;
+                            response.StatusCode = HttpStatusCode.Forbidden; // prevent users from editing a node they shouldn't
                         }
 
                         content.Path = RemoveStartNodeAncestors(content.Path, startNodes);
@@ -99,8 +102,8 @@ namespace MultipleStartNodes.Utilities
                         MediaItemDisplay media = ((ObjectContent)(data)).Value as MediaItemDisplay;
 
                         if (!PathContainsAStartNode(media.Path, startNodes))
-                        {                            
-                            response.StatusCode = HttpStatusCode.Forbidden;
+                        {
+                            response.StatusCode = HttpStatusCode.Forbidden; // prevent users from editing a node they shouldn't
                         }
 
                         media.Path = RemoveStartNodeAncestors(media.Path, startNodes);
@@ -342,23 +345,39 @@ namespace MultipleStartNodes.Utilities
             if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
-            return base.SendAsync(request, cancellationToken)
-                .ContinueWith(task =>
-                {
-                    HttpResponseMessage response = task.Result;
-                    try
+            //// prevent moving/copying into inaccessible locations
+            // do some hackery to read the post data more than once - http://stackoverflow.com/questions/12007689/cannot-read-body-data-from-web-api-post
+            MediaTypeHeaderValue contentType = request.Content.Headers.ContentType;
+            MoveOrCopy postModel = request.Content.ReadAsAsync<MoveOrCopy>().Result;            
+            string contentInString = JsonConvert.SerializeObject(postModel);
+            request.Content = new StringContent(contentInString);
+            request.Content.Headers.ContentType = contentType;
+
+            if (IndexOfInt(startNodes, postModel.ParentId) == -1)
+            {
+                // throw a friendly error message
+            }
+            else
+            {
+                // perform default request
+                return base.SendAsync(request, cancellationToken)
+                    .ContinueWith(task =>
                     {
-                        string path = response.Content.ReadAsStringAsync().Result;
-                        path = RemoveStartNodeAncestors(path, startNodes);
-                        response.Content = new StringContent(path, Encoding.UTF8, "application/json");
+                        HttpResponseMessage response = task.Result;
+                        try
+                        {
+                            string path = response.Content.ReadAsStringAsync().Result;
+                            path = RemoveStartNodeAncestors(path, startNodes);
+                            response.Content = new StringContent(path, Encoding.UTF8, "application/json");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error<WebApiHandler>("Could not update path.", ex);
+                        }
+                        return response;
                     }
-                    catch (Exception ex)
-                    {
-                        LogHelper.Error<WebApiHandler>("Could not update path.", ex);
-                    }
-                    return response;
-                }
-            );
+                );
+            }
         }
 
         private string RemoveStartNodeAncestors(string path, int[] startNodes, int removeStartIndex = 1)

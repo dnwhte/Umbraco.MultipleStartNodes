@@ -22,6 +22,12 @@
                 else if (requestUrl.indexOf("views/common/dialogs/mediaPicker.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapickerdialog.html";
                 }
+                else if (requestUrl.indexOf("views/common/overlays/copy/copy.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listviewcopy.html";
+                }
+                else if (requestUrl.indexOf("views/common/overlays/move/move.html") === 0) {
+                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listviewmove.html";
+                }
                 else if (requestUrl.indexOf("views/content/move.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentmove.html";
                 }              
