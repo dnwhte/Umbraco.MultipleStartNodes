@@ -42,6 +42,8 @@ Replace default start nodes with user's custom start nodes. Used by media picker
     /umbraco/backoffice/umbracoapi/content/postcopy
     /umbraco/backoffice/umbracoapi/media/postmove
 
+Throw an error if the user doesn't have access to the location they're trying to move/copy a node into. 
+
 Remove inaccessible ancestors from the node's path - this prevents the tree from reloading every time a node is requested.
 
 ---
@@ -66,5 +68,7 @@ Remove the move and delete functions from the user's start nodes. Disable the up
     views/content/move.html
     views/content/copy.html
     views/media/move.html
+    views/common/overlays/copy/copy.html
+    views/common/overlays/move/move.html
 
 Add a value to the umb-tree customtreeparams attribute that lets the *TreeControllerBase.TreeNodesRendering* event know to render the user's custom start nodes instead of the default.
