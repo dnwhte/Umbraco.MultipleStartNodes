@@ -1,18 +1,25 @@
 ﻿using AutoMapper;
+using MultipleStartNodes.Helpers;
 using MultipleStartNodes.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http;
+using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.EntityBase;
 using Umbraco.Core.Models.Membership;
-using Umbraco.Web;
 using Umbraco.Web.Models.ContentEditing;
+using Umbraco.Web.WebApi;
 
 namespace MultipleStartNodes.Utilities
 {
@@ -49,7 +56,7 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInacessibleContentNodesFromPath(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
 
             if (user.UserType.Alias == "admin" || startNodes == null)
@@ -59,6 +66,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {                        
                         HttpContent data = response.Content;
@@ -66,7 +74,7 @@ namespace MultipleStartNodes.Utilities
 
                         if (!PathContainsAStartNode(content.Path, startNodes))
                         {                            
-                            response.StatusCode = HttpStatusCode.Forbidden;
+                            response.StatusCode = HttpStatusCode.Forbidden; // prevent users from editing a node they shouldn't
                         }
 
                         content.Path = RemoveStartNodeAncestors(content.Path, startNodes);
@@ -82,7 +90,7 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInacessibleMediaNodesFromPath(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
 
             if (user.UserType.Alias == "admin" || startNodes == null)
@@ -92,14 +100,15 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
                         MediaItemDisplay media = ((ObjectContent)(data)).Value as MediaItemDisplay;
 
                         if (!PathContainsAStartNode(media.Path, startNodes))
-                        {                            
-                            response.StatusCode = HttpStatusCode.Forbidden;
+                        {
+                            response.StatusCode = HttpStatusCode.Forbidden; // prevent users from editing a node they shouldn't
                         }
 
                         media.Path = RemoveStartNodeAncestors(media.Path, startNodes);
@@ -115,7 +124,7 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInaccessibleAncestorsFromBreadcrumbs(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes;
 
             if (request.RequestUri.Query.Contains("type=document"))
@@ -138,6 +147,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -170,7 +180,7 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInaccessibleNodesFromSearchResults(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id);
 
             if (user.UserType.Alias == "admin")
@@ -180,6 +190,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -215,7 +226,7 @@ namespace MultipleStartNodes.Utilities
                 return base.SendAsync(request, cancellationToken);
             }
 
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
 
             if (user.UserType.Alias == "admin" || startNodes == null)
@@ -225,6 +236,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -249,8 +261,9 @@ namespace MultipleStartNodes.Utilities
             // do at root in the media section or in the picker when it should be limited
             if (request.RequestUri.Query.Contains("id=-1") && (request.RequestUri.Query.Contains("pageNumber=1") || Settings.LimitPickersToStartNodes))
             {
-                IUser user = UmbracoContext.Current.Security.CurrentUser;
-                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
 
                 if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
@@ -259,13 +272,14 @@ namespace MultipleStartNodes.Utilities
                     .ContinueWith(task =>
                     {
                         HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
                         try
                         {
                             HttpContent data = response.Content;
                             ObjectContent dataContent = ((ObjectContent)(data));
 
                             int itemCount = startNodes.Length;
-                            IMedia[] startIMedia = Resources.Services.MediaService.GetByIds(startNodes).ToArray();
+                            IMedia[] startIMedia = appContext.Services.MediaService.GetByIds(startNodes).ToArray();
 
                             var pagedResult = new PagedResult<ContentItemBasic<ContentPropertyBasic, IMedia>>(itemCount, 1, itemCount);
                             pagedResult.Items = startIMedia
@@ -288,8 +302,9 @@ namespace MultipleStartNodes.Utilities
         {            
             if (request.RequestUri.Query.Contains("id=-1"))
             {
-                IUser user = UmbracoContext.Current.Security.CurrentUser;
-                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                int[] startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
 
                 if (user.UserType.Alias == "admin" || startNodes == null)
                     return base.SendAsync(request, cancellationToken);
@@ -298,13 +313,14 @@ namespace MultipleStartNodes.Utilities
                     .ContinueWith(task =>
                     {
                         HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
                         try
                         {
                             HttpContent data = response.Content;
-                            ObjectContent dataContent = ((ObjectContent)(data));
+                            ObjectContent dataContent = ((ObjectContent)(data));                            
 
-                            IEnumerable<int> folderTypes = Resources.Services.ContentTypeService.GetAllMediaTypes().ToArray().Where(x => x.Alias.EndsWith("Folder")).Select(x => x.Id);
-                            IMedia[] children = Resources.Services.MediaService.GetByIds(startNodes).ToArray();
+                            IEnumerable<int> folderTypes = appContext.Services.ContentTypeService.GetAllMediaTypes().ToArray().Where(x => x.Alias.EndsWith("Folder")).Select(x => x.Id);
+                            IMedia[] children = appContext.Services.MediaService.GetByIds(startNodes).ToArray();
                             dataContent.Value = children.Where(x => folderTypes.Contains(x.ContentTypeId)).Select(Mapper.Map<IMedia, ContentItemBasic<ContentPropertyBasic, IMedia>>);
                         }
                         catch (Exception ex)
@@ -320,16 +336,17 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInacessibleNodesFromPathPostMoveAndCopy(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            IUser user = UmbracoContext.Current.Security.CurrentUser;
+            ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+            IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes;
 
             if (request.RequestUri.AbsolutePath.ToLower().Contains("/content/"))
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Content;
             }
             else if (request.RequestUri.AbsolutePath.ToLower().Contains("/media/"))
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
             }
             else
             {
@@ -339,23 +356,44 @@ namespace MultipleStartNodes.Utilities
             if (user.UserType.Alias == "admin" || startNodes == null)
                 return base.SendAsync(request, cancellationToken);
 
-            return base.SendAsync(request, cancellationToken)
-                .ContinueWith(task =>
-                {
-                    HttpResponseMessage response = task.Result;
-                    try
+            //// prevent moving/copying into inaccessible locations
+            // do some hackery to read the post data more than once - http://stackoverflow.com/questions/12007689/cannot-read-body-data-from-web-api-post
+            MediaTypeHeaderValue contentType = request.Content.Headers.ContentType;
+            MoveOrCopy postModel = request.Content.ReadAsAsync<MoveOrCopy>().Result;            
+            string contentInString = JsonConvert.SerializeObject(postModel);
+            request.Content = new StringContent(contentInString);
+            request.Content.Headers.ContentType = contentType;
+            IUmbracoEntity parent = appContext.Services.EntityService.Get(postModel.ParentId);
+
+            if (!PathContainsAStartNode(parent.Path, startNodes))
+            {            
+                // take error notification from https://github.com/umbraco/Umbraco-CMS/blob/a2a4ad39476f4a18c8fe2c04d42f6fa635551b63/src/Umbraco.Web/Editors/MediaController.cs#L656                
+                SimpleNotificationModel notificationModel = new SimpleNotificationModel();
+                notificationModel.AddErrorNotification(appContext.Services.TextService.Localize("moveOrCopy/notValid", CultureInfo.CurrentCulture), "");
+                throw new HttpResponseException(request.CreateValidationErrorResponse(notificationModel));
+            }
+            else
+            {
+                // perform default request
+                return base.SendAsync(request, cancellationToken)
+                    .ContinueWith(task =>
                     {
-                        string path = response.Content.ReadAsStringAsync().Result;
-                        path = RemoveStartNodeAncestors(path, startNodes);
-                        response.Content = new StringContent(path, Encoding.UTF8, "application/json");
+                        HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
+                        try
+                        {                            
+                            string path = response.Content.ReadAsStringAsync().Result;
+                            path = RemoveStartNodeAncestors(path, startNodes);
+                            response.Content = new StringContent(path, Encoding.UTF8, "application/json");                         
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error<WebApiHandler>("Could not update path.", ex);
+                        }
+                        return response;
                     }
-                    catch (Exception ex)
-                    {
-                        LogHelper.Error<WebApiHandler>("Could not update path.", ex);
-                    }
-                    return response;
-                }
-            );
+                );
+            }
         }
 
         private string RemoveStartNodeAncestors(string path, int[] startNodes, int removeStartIndex = 1)

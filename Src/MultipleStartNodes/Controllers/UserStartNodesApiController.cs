@@ -9,7 +9,7 @@ namespace MultipleStartNodes.Controllers
     {
         public UserStartNodes GetById(int userId)
         {
-            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId);
+            StartNodeCollection startNodes = StartNodeRepository.GetCachedStartNodesByUserId(userId, ApplicationContext, DatabaseContext);
             UserStartNodes userStartNodes = new UserStartNodes();
             userStartNodes.UserId = userId;
             userStartNodes.Content = (startNodes.Content != null) ? string.Join(",", startNodes.Content) : "";
@@ -20,7 +20,7 @@ namespace MultipleStartNodes.Controllers
 
         public UserStartNodes Save(UserStartNodes userStartNodes)
         {
-            StartNodeRepository.Save(userStartNodes);
+            StartNodeRepository.Save(userStartNodes, ApplicationContext, DatabaseContext);
 
             return userStartNodes;
         }

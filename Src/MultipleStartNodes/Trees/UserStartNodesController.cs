@@ -8,7 +8,6 @@ using Umbraco.Web.Models.Trees;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Trees;
 using Umbraco.Core.Services;
-using MultipleStartNodes.Utilities;
 
 namespace MultipleStartNodes.Trees
 {
@@ -23,7 +22,7 @@ namespace MultipleStartNodes.Trees
             if (id == Constants.System.Root.ToInvariantString())
             {                
                 // root actions                
-                menu.Items.Add<RefreshNode, ActionRefresh>(Resources.Services.TextService.Localize(string.Format("actions/{0}", ActionRefresh.Instance.Alias)), true);
+                menu.Items.Add<RefreshNode, ActionRefresh>(Services.TextService.Localize(string.Format("actions/{0}", ActionRefresh.Instance.Alias)), true);
             }
 
             return menu;
@@ -37,8 +36,8 @@ namespace MultipleStartNodes.Trees
                 int totalRecords;
                 TreeNodeCollection nodes = new TreeNodeCollection();
 
-                totalRecords = Resources.Services.UserService.GetCount(global::Umbraco.Core.Models.Membership.MemberCountType.All);
-                IEnumerable<IUser> users = Resources.Services.UserService.GetAll(0, totalRecords, out totalRecords);
+                totalRecords = Services.UserService.GetCount(global::Umbraco.Core.Models.Membership.MemberCountType.All);
+                IEnumerable<IUser> users = Services.UserService.GetAll(0, totalRecords, out totalRecords);
 
                 foreach (IUser user in users)
                 {

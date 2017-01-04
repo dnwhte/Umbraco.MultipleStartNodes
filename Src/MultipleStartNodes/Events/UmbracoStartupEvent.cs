@@ -5,7 +5,7 @@ using Umbraco.Web;
 using Umbraco.Web.Trees;
 using System.Web.Http;
 using MultipleStartNodes.Utilities;
-using MultipleStartNodes.Models;
+using MultipleStartNodes.Helpers;
 
 namespace MultipleStartNodes.Events
 {
@@ -67,9 +67,10 @@ namespace MultipleStartNodes.Events
 
         private void MediaServiceSaving(IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         {
-            if (UmbracoContext.Current.Security.CurrentUser.UserType.Alias != "admin" && UmbracoContext.Current.Security.CurrentUser.StartMediaId == -1)
+            UmbracoContext umbContext = ContextHelpers.EnsureUmbracoContext();
+            if (umbContext.Security.CurrentUser.UserType.Alias != "admin" && umbContext.Security.CurrentUser.StartMediaId == -1)
             {
-                BackOfficeUtils.ValidateMediaUploadAccess(UmbracoContext.Current.Security.CurrentUser.Id, sender, e);
+                BackOfficeUtils.ValidateMediaUploadAccess(umbContext.Security.CurrentUser.Id, sender, e);
             }
         }        
     }

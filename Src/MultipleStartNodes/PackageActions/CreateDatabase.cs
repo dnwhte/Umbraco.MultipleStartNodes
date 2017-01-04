@@ -1,14 +1,12 @@
-﻿using MultipleStartNodes.Models;
-using MultipleStartNodes.Utilities;
+﻿using MultipleStartNodes.Helpers;
+using MultipleStartNodes.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using umbraco.cms.businesslogic.packager.standardPackageActions;
 using umbraco.interfaces;
+using Umbraco.Core;
 using Umbraco.Core.Logging;
+using Umbraco.Core.Persistence;
 
 namespace MultipleStartNodes.PackageActions
 {
@@ -23,9 +21,12 @@ namespace MultipleStartNodes.PackageActions
         {
             try
             {
-                if (!Resources.DatabaseSchemaHelper.TableExist("userStartNodes"))
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                DatabaseSchemaHelper databaseSchemaHelper = new DatabaseSchemaHelper(appContext.DatabaseContext.Database, ContextHelpers.EnsureApplicationContext().ProfilingLogger.Logger, appContext.DatabaseContext.SqlSyntax);
+
+                if (!databaseSchemaHelper.TableExist("userStartNodes"))
                 {
-                    Resources.DatabaseSchemaHelper.CreateTable<UserStartNodes>(false);
+                    databaseSchemaHelper.CreateTable<UserStartNodes>(false);
                 }
 
                 return true;
@@ -49,7 +50,10 @@ namespace MultipleStartNodes.PackageActions
         {            
             try
             {
-                Resources.DatabaseSchemaHelper.DropTable<UserStartNodes>();
+                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+                DatabaseSchemaHelper databaseSchemaHelper = new DatabaseSchemaHelper(appContext.DatabaseContext.Database, ContextHelpers.EnsureApplicationContext().ProfilingLogger.Logger, appContext.DatabaseContext.SqlSyntax);
+                
+                databaseSchemaHelper.DropTable<UserStartNodes>();
 
                 return true;
             }

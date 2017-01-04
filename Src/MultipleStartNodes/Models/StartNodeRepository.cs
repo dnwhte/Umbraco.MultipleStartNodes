@@ -3,6 +3,8 @@ using Umbraco.Core.Cache;
 using System.Net;
 using System.Web.Http;
 using MultipleStartNodes.Utilities;
+using Umbraco.Core;
+using MultipleStartNodes.Helpers;
 
 namespace MultipleStartNodes.Models
 {
@@ -10,57 +12,63 @@ namespace MultipleStartNodes.Models
     {
         public static StartNodeCollection GetCachedStartNodesByUserId(int userId)
         {
-            StartNodeCollection startNodes = Resources.AppCache.GetCacheItem<StartNodeCollection>(Resources.CacheKeyPrefix + userId.ToString());
+            ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+            return GetCachedStartNodesByUserId(userId, appContext, appContext.DatabaseContext);
+        }
+
+        public static StartNodeCollection GetCachedStartNodesByUserId(int userId, ApplicationContext applicationContext, DatabaseContext databaseContext)
+        {
+            StartNodeCollection startNodes = applicationContext.ApplicationCache.RuntimeCache.GetCacheItem<StartNodeCollection>(Resources.CacheKeyPrefix + userId.ToString());
 
             if (startNodes == null)
             {
-                startNodes = GetAndCacheStartNodes(userId);
+                startNodes = GetAndCacheStartNodes(userId, applicationContext, databaseContext);
             }
 
             return startNodes;
         }
 
-        public static UserStartNodes GetByUserId(int userId)
+        public static UserStartNodes GetByUserId(int userId, ApplicationContext applicationContext, DatabaseContext databaseContext)
         {
             // validates that the userId corresponds to an actual existing Umbraco user
-            if (Resources.Services.UserService.GetUserById(userId) == null)
+            if ( applicationContext.Services.UserService.GetUserById(userId) == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            return Resources.Database.SingleOrDefault<UserStartNodes>(userId);
+            return databaseContext.Database.SingleOrDefault<UserStartNodes>(userId);
         }
 
-        public static void Create(UserStartNodes userStartNodes)
+        public static void Create(UserStartNodes userStartNodes, DatabaseContext databaseContext)
         {
-            Resources.Database.Insert(userStartNodes);
+            databaseContext.Database.Insert(userStartNodes);
         }
 
-        public static void Update(UserStartNodes userStartNodes)
+        public static void Update(UserStartNodes userStartNodes, DatabaseContext databaseContext)
         {
-            Resources.Database.Update(userStartNodes);
+            databaseContext.Database.Update(userStartNodes);
         }
 
-        public static void Delete(UserStartNodes userStartNodes)
+        public static void Delete(UserStartNodes userStartNodes, DatabaseContext databaseContext)
         {
-            Resources.Database.Delete(userStartNodes);
+            databaseContext.Database.Delete(userStartNodes);
         }
 
-        public static void Save(UserStartNodes userStartNodes)
+        public static void Save(UserStartNodes userStartNodes, ApplicationContext applicationContext, DatabaseContext databaseContext)
         {         
-            if (Resources.Database.Exists<UserStartNodes>(userStartNodes.UserId))
+            if (databaseContext.Database.Exists<UserStartNodes>(userStartNodes.UserId))
             {
-                Update(userStartNodes); 
+                Update(userStartNodes, databaseContext); 
             }
             else
             {
-                Create(userStartNodes);
+                Create(userStartNodes, databaseContext);
             }
 
-            CacheUserStartNodes(userStartNodes.UserId, userStartNodes);
+            CacheUserStartNodes(userStartNodes.UserId, userStartNodes, applicationContext, databaseContext);
         }
 
-        private static StartNodeCollection CacheUserStartNodes(int userId, UserStartNodes userStartNodes)
+        private static StartNodeCollection CacheUserStartNodes(int userId, UserStartNodes userStartNodes, ApplicationContext applicationContext, DatabaseContext databaseContext)
         {
             StartNodeCollection startNodes = new StartNodeCollection();
 
@@ -70,16 +78,16 @@ namespace MultipleStartNodes.Models
                 startNodes.Media = (!string.IsNullOrWhiteSpace(userStartNodes.Media)) ? Array.ConvertAll(userStartNodes.Media.Split(','), int.Parse) : null;
             }
 
-            Resources.AppCache.InsertCacheItem<StartNodeCollection>(Resources.CacheKeyPrefix + userId.ToString(), () => startNodes);
+            applicationContext.ApplicationCache.RuntimeCache.InsertCacheItem<StartNodeCollection>(Resources.CacheKeyPrefix + userId.ToString(), () => startNodes);
 
             return startNodes;
         }
 
-        private static StartNodeCollection GetAndCacheStartNodes(int userId)
+        private static StartNodeCollection GetAndCacheStartNodes(int userId, ApplicationContext applicationContext, DatabaseContext databaseContext)
         {
-            UserStartNodes userStartNodes = GetByUserId(userId);
+            UserStartNodes userStartNodes = GetByUserId(userId, applicationContext, databaseContext);
 
-            return CacheUserStartNodes(userId, userStartNodes);
+            return CacheUserStartNodes(userId, userStartNodes, applicationContext, databaseContext);
         }
     }
 }
