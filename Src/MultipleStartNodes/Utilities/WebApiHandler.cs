@@ -16,6 +16,7 @@ using System.Web.Http;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.EntityBase;
 using Umbraco.Core.Models.Membership;
 using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.WebApi;
@@ -65,6 +66,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {                        
                         HttpContent data = response.Content;
@@ -98,6 +100,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -144,6 +147,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -186,6 +190,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -231,6 +236,7 @@ namespace MultipleStartNodes.Utilities
                 .ContinueWith(task =>
                 {
                     HttpResponseMessage response = task.Result;
+                    if (!response.IsSuccessStatusCode) return response;
                     try
                     {
                         HttpContent data = response.Content;
@@ -266,6 +272,7 @@ namespace MultipleStartNodes.Utilities
                     .ContinueWith(task =>
                     {
                         HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
                         try
                         {
                             HttpContent data = response.Content;
@@ -306,6 +313,7 @@ namespace MultipleStartNodes.Utilities
                     .ContinueWith(task =>
                     {
                         HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
                         try
                         {
                             HttpContent data = response.Content;
@@ -328,16 +336,17 @@ namespace MultipleStartNodes.Utilities
 
         private Task<HttpResponseMessage> RemoveInacessibleNodesFromPathPostMoveAndCopy(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
             IUser user = ContextHelpers.EnsureUmbracoContext().Security.CurrentUser;
             int[] startNodes;
 
             if (request.RequestUri.AbsolutePath.ToLower().Contains("/content/"))
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Content;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Content;
             }
             else if (request.RequestUri.AbsolutePath.ToLower().Contains("/media/"))
             {
-                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id).Media;
+                startNodes = StartNodeRepository.GetCachedStartNodesByUserId(user.Id, appContext, appContext.DatabaseContext).Media;
             }
             else
             {
@@ -354,11 +363,11 @@ namespace MultipleStartNodes.Utilities
             string contentInString = JsonConvert.SerializeObject(postModel);
             request.Content = new StringContent(contentInString);
             request.Content.Headers.ContentType = contentType;
+            IUmbracoEntity parent = appContext.Services.EntityService.Get(postModel.ParentId);
 
-            if (IndexOfInt(startNodes, postModel.ParentId) == -1)
-            {
-                // take error notification from https://github.com/umbraco/Umbraco-CMS/blob/a2a4ad39476f4a18c8fe2c04d42f6fa635551b63/src/Umbraco.Web/Editors/MediaController.cs#L656
-                ApplicationContext appContext = ContextHelpers.EnsureApplicationContext();
+            if (!PathContainsAStartNode(parent.Path, startNodes))
+            {            
+                // take error notification from https://github.com/umbraco/Umbraco-CMS/blob/a2a4ad39476f4a18c8fe2c04d42f6fa635551b63/src/Umbraco.Web/Editors/MediaController.cs#L656                
                 SimpleNotificationModel notificationModel = new SimpleNotificationModel();
                 notificationModel.AddErrorNotification(appContext.Services.TextService.Localize("moveOrCopy/notValid", CultureInfo.CurrentCulture), "");
                 throw new HttpResponseException(request.CreateValidationErrorResponse(notificationModel));
@@ -370,11 +379,12 @@ namespace MultipleStartNodes.Utilities
                     .ContinueWith(task =>
                     {
                         HttpResponseMessage response = task.Result;
+                        if (!response.IsSuccessStatusCode) return response;
                         try
-                        {
+                        {                            
                             string path = response.Content.ReadAsStringAsync().Result;
                             path = RemoveStartNodeAncestors(path, startNodes);
-                            response.Content = new StringContent(path, Encoding.UTF8, "application/json");
+                            response.Content = new StringContent(path, Encoding.UTF8, "application/json");                         
                         }
                         catch (Exception ex)
                         {

@@ -1,7 +1,7 @@
 {
     "name": "Multiple Start Nodes",
     "directory": "MultipleStartNodes",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "url": "https://github.com/danwhite85/Umbraco.MultipleStartNodes",
     "author": "Dan White",
     "authorUrl": "http://www.lcsc.edu",
