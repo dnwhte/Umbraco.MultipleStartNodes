@@ -1,12 +1,8 @@
 ﻿(function () {
     'use strict';
 
-    function MultipleStartNodesListViewController($scope, $timeout, $http, $compile, userService, userStartNodesResource) {        
-
-        // load umbraco's default view. Adding ?nointercept prevents my httpinterceptor from causing circular redirects
-        $http.get('views/propertyeditors/listview/listview.html?nointercept').success(function (template) {
-            $compile($("#multiple-start-nodes_listview").html(template).contents())($scope);
-
+    function MultipleStartNodesListViewController($scope, $timeout, userService, userStartNodesResource) {
+        function init() {
             if ($scope.$$childHead.contentId === -1) {
                 userService.getCurrentUser().then(function (user) {
                     if (user.userType === 'admin' || user.startMediaId !== -1) {
@@ -22,9 +18,12 @@
                         $scope.$$childHead.options.allowBulkMove = false;
                     });
                 });
-            }     
-        });
+            }
+        };
 
+        $timeout(function () {
+            init();
+        });
     };
 
     // Register the controller
