@@ -1,6 +1,21 @@
 ﻿angular.module('umbraco.services').config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push(function ($q) {
         return {
+            'response': function (response) {                
+                var requestUrl = response.config.url;
+
+                if (requestUrl.indexOf("views/content/copy.html") === 0
+                    || requestUrl.indexOf("views/content/move.html") === 0
+                    || requestUrl.indexOf("views/media/move.html") === 0
+                    || requestUrl.indexOf("views/common/overlays/copy/copy.html") === 0
+                    || requestUrl.indexOf("views/common/overlays/move/move.html") === 0)
+                {
+                    response.data = multipleStartNodesUtilities.forceUmbTreeToUseStartNodes(response.data);                    
+                }
+
+                return response;
+            },
+
             'request': function (request) {
                 var requestUrl = request.url;
                  
@@ -21,22 +36,7 @@
                 }
                 else if (requestUrl.indexOf("views/common/dialogs/mediaPicker.html") === 0) {
                     request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediapickerdialog.html";
-                }
-                else if (requestUrl.indexOf("views/common/overlays/copy/copy.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listviewcopy.html";
-                }
-                else if (requestUrl.indexOf("views/common/overlays/move/move.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/listviewmove.html";
-                }
-                else if (requestUrl.indexOf("views/content/move.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentmove.html";
-                }              
-                else if (requestUrl.indexOf("views/content/copy.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/contentcopy.html";
-                }
-                else if (requestUrl.indexOf("views/media/move.html") === 0) {
-                    request.url = "/App_Plugins/MultipleStartNodes/umbracoviews/mediamove.html";
-                }    
+                }  
 
                 return request || $q.when(request);
             }
