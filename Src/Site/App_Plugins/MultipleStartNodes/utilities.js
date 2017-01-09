@@ -1,43 +1,99 @@
 ﻿var multipleStartNodesUtilities = {
-    forceUmbTreeToUseStartNodes: function (template) {
-        return template.replace(/<umb-tree\s/g, '<umb-tree customtreeparams="usestartnodes=true" ');
-    },
-    hideIncccessibleBreadcrumbs: function (template) {
-        return template.split('ng-if="!$last"').join('ng-if="!ancestor.metaData.Hidden && !$last"');
-    },
-    conditionallyHideDropzone: function (template) {
-        var $template = $('<div ng-controller="MultipleStartNodes.DropZoneController as dzvm">' + template + '</div>');
-        var $dropzone = $template.find('umb-file-dropzone');
-        var ngIfInitial = $dropzone.attr('ng-if');
-        $dropzone.attr('ng-if', 'dzvm.canUpload && (' + ngIfInitial + ')');
+    modCopyMoveView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
 
-        return $template[0].outerHTML;
+        if (!this[cacheKey]) {
+            this[cacheKey] = template.replace(/<umb-tree\s/g, '<umb-tree customtreeparams="usestartnodes=true" ');
+        }
+
+        return this[cacheKey];
     },
-    hideActionsForStartNodes: function (template) {
-        return '<div ng-controller="MultipleStartNodes.ListViewController">' + template + '</div>';
+    modBreadcrumbsView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
+
+        if (!this[cacheKey]) {
+            this[cacheKey] = template.split('ng-if="!$last"').join('ng-if="!ancestor.metaData.Hidden && !$last"');
+        }
+
+        return this[cacheKey];
     },
-    conditionallyHideUploadOptions: function (template) {
-        var $template = $('<div ng-controller="MultipleStartNodes.MediaPickerController as vm">' + template + '</div>');
-        var $uploadBtn = $template.find('.upload-button').find('umb-button');
-        //$uploadBtn.attr('disabled', '!vm.canEdit || (' + $uploadBtn.attr('disabled') + ')'); // ARG!!! JQUERY THINKS IT KNOWS EVERYTHING ABOUT THE DISABLED ATTRIBUTE
-        $uploadBtn[0].outerHTML = $uploadBtn[0].outerHTML.replace(/ disabled="([^"]*)"/, ' disabled="!vm.canEdit || (' + $uploadBtn.attr('disabled') + ')"'); // hacky alternative?
+    modListLayoutView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
 
+        if (!this[cacheKey]) {
+            var $template = $('<div ng-controller="MultipleStartNodes.DropZoneController as dzvm">' + template + '</div>');
+            var $dropzone = $template.find('umb-file-dropzone');
+            var ngIfInitial = $dropzone.attr('ng-if');
+            $dropzone.attr('ng-if', 'dzvm.canUpload && (' + ngIfInitial + ')');
 
-        console.log($uploadBtn);
-        console.log($template[0].outerHTML);
+            this[cacheKey] = $template[0].outerHTML;
+        }
 
-        return $template[0].outerHTML;
+        return this[cacheKey];        
+    },
+    modListView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
+
+        if (!this[cacheKey]) {
+            this[cacheKey] = '<div ng-controller="MultipleStartNodes.ListViewController">' + template + '</div>';
+        }
+
+        return this[cacheKey];
+    },
+    modMediaPickerOverlayView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
+
+        if (!this[cacheKey]) {
+            // conditionally hide folder creation button
+            template = template.replace('ng-hide="showFolderInput"', 'ng-hide="!vm.canEdit || showFolderInput"');
+
+            // get jquery template object
+            var $template = $('<div ng-controller="MultipleStartNodes.MediaPickerController as vm">' + template + '</div>');
+
+            // conditionally disable upload button 
+            var $uploadBtn = $template.find('.upload-button').find('umb-button');
+            $uploadBtn[0].setAttribute('disabled', '!vm.canEdit || (' + $uploadBtn.attr('disabled') + ')');
+
+            // conditionally disable dropzone
+            var $dropzone = $template.find('umb-file-dropzone');
+            $dropzone.attr('hide-dropzone', function (i, val) {
+                var chars = val.split('');
+                chars.splice(2, 0, '!vm.canEdit || (');
+                chars.splice(chars.length - 2, 0, ')');
+                return chars.join('');
+            });
+
+            this[cacheKey] = $template[0].outerHTML;
+        }
+
+        return this[cacheKey];        
+    },
+    modMediaPickerDialogView: function (template, requestUrl) {
+        var cacheKey = requestUrl.replace(/\W/g, '');
+
+        if (!this[cacheKey]) {
+            // conditionally hide folder creation button
+            template = template.replace('ng-hide="showFolderInput"', 'ng-hide="!vm.canEdit || showFolderInput"');
+
+            // get jquery template object
+            var $template = $('<div ng-controller="MultipleStartNodes.MediaPickerController as vm">' + template + '</div>');
+
+            // conditionally disable upload button 
+            var $uploadBtn = $template.find('.upload-button').find('button');
+            $uploadBtn.attr('ng-disabled', '!vm.canEdit || (' + $uploadBtn.attr('ng-disabled') + ')');
+
+            // conditionally disable dropzone
+            var $dropzone = $template.find('umb-file-dropzone');
+            $dropzone.attr('hide-dropzone', function (i, val) {
+                var chars = val.split('');
+                chars.splice(2, 0, '!vm.canEdit || (');
+                chars.splice(chars.length - 2, 0, ')');
+                return chars.join('');
+            });
+
+            this[cacheKey] = $template[0].outerHTML;
+        }
+
+        return this[cacheKey];        
     }
-
-
-
-
-    //// jquery way. For more complicated stuff
-    //forceUmbTreeToUseStartNodes: function (template) {
-    //    var $template = $(template);
-
-    //    $template.find('umb-tree').attr('customtreeparams', 'usestartnodes=true');
-
-    //    return $template[0].outerHTML;
-    //}
 };
