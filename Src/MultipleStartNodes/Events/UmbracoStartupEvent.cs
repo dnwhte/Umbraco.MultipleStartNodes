@@ -68,7 +68,7 @@ namespace MultipleStartNodes.Events
         private void MediaServiceSaving(IMediaService sender, Umbraco.Core.Events.SaveEventArgs<Umbraco.Core.Models.IMedia> e)
         {
             UmbracoContext umbContext = ContextHelpers.EnsureUmbracoContext();
-            if (umbContext.Security.CurrentUser.UserType.Alias != "admin" && umbContext.Security.CurrentUser.StartMediaId == -1)
+            if (umbContext.Security.CurrentUser != null && (umbContext.Security.CurrentUser.UserType.Alias != "admin" && umbContext.Security.CurrentUser.StartMediaId == -1))
             {
                 BackOfficeUtils.ValidateMediaUploadAccess(umbContext.Security.CurrentUser.Id, sender, e);
             }
