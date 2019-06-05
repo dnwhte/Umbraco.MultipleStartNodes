@@ -1,3 +1,9 @@
+# ADVISORY
+
+Umbraco 7.7+ now support multiple start nodes. It is recommended that you upgrade to the latest version of Umbraco rather than relying on this package. Note: Umbraco 7.7+ does NOT yet support seperate start nodes for pickers. If that is a feature you would like please vote for it at http://issues.umbraco.org/issue/U4-10147.
+
+--- 
+
 # Umbraco.MultipleStartNodes
 This package gives you the ability to set multiple content/media start nodes for users.
 
